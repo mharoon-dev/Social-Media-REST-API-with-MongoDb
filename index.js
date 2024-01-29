@@ -6,6 +6,7 @@ import morgan from "morgan";
 import userRoute from "./routes/users.js";
 import authRouter from "./routes/auth.js";
 import { dbConnection } from "./utils/config.js";
+import postRouter from "./routes/posts.js";
 
 const app = express();
 dotenv.config();
@@ -17,9 +18,12 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 
-// api 
-app.use('/api/v1/users', userRoute)
+// auth api 
 app.use('/api/v1/auth', authRouter)
+// user api 
+app.use('/api/v1/users', userRoute)
+// post api 
+app.use('/api/v1/post', postRouter)
 
 
 // server checking
