@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteUserController, followUserController, getUserController, getUsersController, updateUserController } from "../controllers/usersControllers.js";
+import { deleteUserController, followUserController, getUserController, getUsersController, unFollowUserController, updateUserController } from "../controllers/usersControllers.js";
 const userRouter = express.Router();
 
 // update user
@@ -12,5 +12,7 @@ userRouter.get("/:id", getUserController);
 userRouter.get("/", getUsersController);
 // follow a user
 userRouter.put("/:id/follow", followUserController);
+// unfollow a user
+userRouter.put("/:id/unfollow", unFollowUserController);
 
 export default userRouter;

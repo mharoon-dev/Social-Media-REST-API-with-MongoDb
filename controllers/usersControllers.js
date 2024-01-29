@@ -146,3 +146,43 @@ export const followUserController = async (req, res) => {
     res.json("You can't follow yourself!");
   }
 };
+
+
+// put api
+// unfolow a user
+// /api/v1/users/:id/unfollow
+
+export const unFollowUserController = async (req, res) => {
+  const { id } = req.params;
+  if (req.body.userId !== id) {
+    try {
+      const user = await User.findById(id);
+      const curretUser = await User.findById(req.body.userId);
+
+      if (user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $pull: { followers: req.body.userId } });
+        await curretUser.updateOne({ $pull: { followings: id } });
+        res.status(200);
+        res.json({
+          status: true,
+          message: "user has been unfollowed!",
+        });
+      } else {
+        res.status(403);
+        res.json({
+          status: false ,
+          message: "you are already unfollowing this user!" ,
+        });
+      }
+    } catch (error) {
+      res.status(500);
+      res.json(error);
+    }
+  } else {
+    res.status(403);
+    res.json({
+      status: false ,
+      message: "You can't unfollow yourself!" ,
+    });
+  }
+};
