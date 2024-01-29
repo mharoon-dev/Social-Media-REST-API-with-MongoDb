@@ -1,3 +1,4 @@
+import User from "../models/User.js";
 import Post from "../models/post.js";
 
 // create a post
@@ -91,35 +92,88 @@ export const deletePostController = async (req, res) => {
 // like a post
 // put api
 // /api/v1/post/:id/like
-// export const likePostController = async (req, res) => {
-//   try {
-//     const { id } = req.params;  
-//     console.log(id);                  // post id
-//     const { userId } = req.body.userId;          // logged in user
-//     const post = await Post.findById(id);
-//     console.log(post);
+export const likePostController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id); // post id
+    const { userId } = req.body; // logged in user
+    const post = await Post.findById(id);
+    console.log(post);
 
-//     if (!post.likes.includes(userId)) {
-//       await post.updateOne({ $push: { likes: userId } });
-//       res.status(200);
-//       res.json({
-//         status: true,
-//         message: "post has been liked sucessfully!",
-//         data: post,
-//       });
-//     } else {
-//       await post.updateOne({ $pull: { likes: userId } });
-//       res.status(200);
-//       res.json({
-//         status: true,
-//         message: "the post has been disliked successfully!",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500);
-//     res.json({
-//       status: false,
-//       message: error.message,
-//     });
-//   }
-// };
+    if (!post.likes.includes(userId)) {
+      await post.updateOne({ $push: { likes: userId } });
+      res.status(200);
+      res.json({
+        status: true,
+        message: "post has been liked sucessfully!",
+      });
+    } else {
+      await post.updateOne({ $pull: { likes: userId } });
+      res.status(200);
+      res.json({
+        status: true,
+        message: "the post has been disliked successfully!",
+      });
+    }
+  } catch (error) {
+    res.status(500);
+    res.json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+// get a post
+// get api
+// /api/v1/post/:id
+export const getPostController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findById(id);
+
+    if (post) {
+      res.status(200);
+      res.json({
+        status: true,
+        message: "post fetched successfully!",
+        data: post,
+      });
+    }
+  } catch (error) {
+    res.status(500);
+    res.json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+// get timeline posts
+// get api
+// /api/v1/post/timeline
+export const getPostsByTimeController = async (req, res) => {
+  try {
+    const { userId } = req.body; // logged in user id
+  const currentUser = await User.findById(userId); // getting logged in user
+  // current user
+  const loggedInUserPosts = await Post.find({ userId: currentUser._id }); // logged in user posts
+  const followingUserPosts = await Promise.all(
+    currentUser.followings.map((followingUserId) => {
+      return Post.find({ userId: followingUserId });
+    })          // following user posts
+    ); 
+    res.status(200);    
+    res.json({
+      status: true,
+      messgae: "posts fetched successfully!",
+      data: loggedInUserPosts.concat(...followingUserPosts),
+    });  
+  } catch (error) {
+    res.status(500);
+    res.json({
+      status: false,
+      messgae: error.message,
+    });
+  }  
+};
